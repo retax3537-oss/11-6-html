@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasta Recipes</title>
+    <style>
+        /* 기본 설정 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            /* 스크롤을 부드럽게 이동하게 해줍니다 */
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        /* 상단 네비게이션 바 (참고사이트의 Header 역할) */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 70px;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 50px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 24px;
+            color: #e63946;
+            cursor: pointer;
+        }
+
+        header ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        header ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        header ul li a:hover {
+            color: #e63946;
+        }
+
+        /* 메인 사진 섹션 (접속 시 처음 보이는 화면) */
+        .hero-section {
+            height: 100vh; /* 화면 전체 높이를 차지함 */
+            display: flex;
+            padding-top: 70px; /* 헤더 높이만큼 여백 */
+        }
+
+        .hero-item {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-item img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            z-index: 1;
+        }
+
+        .hero-item::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2;
+            transition: background 0.3s ease;
+        }
+
+        .hero-item:hover img {
+            transform: scale(1.1); /* 마우스 오버 시 사진 확대 효과 */
+        }
+
+        .hero-item:hover::after {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-item h2 {
+            position: relative;
+            z-index: 3;
+            color: #fff;
+            font-size: 3rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            letter-spacing: 2px;
+        }
+
+        /* 레시피 정보 섹션 (스크롤을 내렸을 때 보이는 화면) */
+        .recipe-section {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .recipe-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 60px;
+            /* 헤더에 가려지지 않도록 스크롤 위치 보정 */
+            scroll-margin-top: 100px; 
+        }
+
+        .recipe-header {
+            background-color: #e63946;
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .recipe-header h3 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .recipe-body {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 30px;
+            gap: 40px;
+        }
+
+        .ingredients {
+            flex: 1;
+            min-width: 250px;
+            background-color: #fff1f2;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #e63946;
+        }
+
+        .ingredients h4 {
+            font-size: 18px;
+            color: #e63946;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ffccd5;
+            padding-bottom: 10px;
+        }
+
+        .ingredients ul {
+            list-style: inside square;
+            line-height: 1.8;
+            color: #444;
+        }
+
+        .instructions {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .instructions h4 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            line-height: 1.8;
+            color: #444;
+        }
+
+        .instructions ol li {
+            margin-bottom: 15px;
+        }
+
+        .price-tag {
+            display: inline-block;
+            background: #333;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. 상단 헤더 -->
+    <header>
+        <h1 onclick="window.scrollTo(0,0)">Pasta Story</h1>
+        <ul>
+            <li><a href="#tomato">Tomato</a></li>
+            <li><a href="#carbonara">Carbonara</a></li>
+            <li><a href="#aglio">Aglio e Olio</a></li>
+        </ul>
+    </header>
+
+    <!-- 2. 첫 화면 갤러리 (사진들) -->
+    <section class="hero-section">
+        <!-- 토마토 파스타 -->
+        <a href="#tomato" class="hero-item">
+            <img src="https://images.unsplash.com/photo-1595295333158-4742f28fbd85?auto=format&fit=crop&w=800&q=80" alt="토마토 파스타">
+            <h2>Tomato</h2>
+        </a>
+        
+        <!-- 까르보나라 -->
+        <a href="#carbonara" class="hero-item">
+            <img src="https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=800&q=80" alt="까르보나라">
+            <h2>Carbonara</h2>
+        </a>
+
+        <!-- 알리오 올리오 -->
+        <a href="#aglio" class="hero-item">
+            <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80" alt="알리오 올리오">
+            <h2>Aglio e Olio</h2>
+        </a>
+    </section>
+
+    <!-- 3. 스크롤 아래 레시피 상세 영역 -->
+    <section class="recipe-section">
+        
+        <!-- 토마토 파스타 레시피 -->
+        <article id="tomato" class="recipe-card">
+            <div class="recipe-header">
+                <h3>토마토 파스타 (Tomato Pasta)</h3>
+            </div>
+            <div class="recipe-body">
+                <div class="ingredients">
+                    <h4>준비 재료</h4>
+                    <ul>
+                        <li>스파게티면 100g</li>
+                        <li>시판 토마토 소스 200ml</li>
+                        <li>통마늘 3~4알</li>
+                        <li>양파 1/4개</li>
+                        <li>올리브 오일, 소금, 후추</li>
+                    </ul>
+                    <div class="price-tag">Main: 22,000 KRW</div>
+                </div>
+                <div class="instructions">
+                    <h4>조리 방법</h4>
+                    <ol>
+                        <li>끓는 물에 소금을 넉넉히 넣고 스파게티면을 8~9분간 삶아줍니다.</li>
+                        <li>마늘은 편으로 썰고, 양파는 잘게 다져 준비합니다.</li>
+                        <li>팬에 올리브 오일을 두르고 마늘을 볶아 향을 낸 뒤, 양파를 넣고 투명해질 때까지 볶습니다.</li>
+                        <li>토마토 소스를 넣고 끓어오르면 삶은 면을 넣어 소스가 잘 배어들도록 섞어줍니다.</li>
+                        <li>접시에 담아 취향에 따라 파슬리나 파마산 치즈를 뿌려 완성합니다.</li>
+                    </ol>
+                </div>
+            </div>
+        </article>
+
+        <!-- 까르보나라 레시피 -->
+        <article id="carbonara" class="recipe-card">
+            <div class="recipe-header">
+                <h3>까르보나라 (Carbonara)</h3>
+            </div>
+            <div class="recipe-body">
+                <div class="ingredients">
+                    <h4>준비 재료</h4>
+                    <ul>
+                        <li>스파게티면 100g</li>
+                        <li>베이컨(또는 관찰레) 50g</li>
+                        <li>계란 노른자 2개</li>
+                        <li>파마산 치즈 가루 3큰술</li>
+                        <li>통후추 약간</li>
+                    </ul>
+                    <div class="price-tag">Main: 22,000 KRW</div>
+                </div>
+                <div class="instructions">
+                    <h4>조리 방법</h4>
+                    <ol>
+                        <li>끓는 물에 소금을 넣고 면을 삶습니다.</li>
+                        <li>볼에 계란 노른자와 파마산 치즈, 간 후추를 섞어 소스를 미리 만들어 둡니다.</li>
+                        <li>팬에 베이컨을 바삭하게 굽고, 삶아진 면을 팬에 옮겨 베이컨 기름에 코팅하듯 섞습니다.</li>
+                        <li><b>중요:</b> 불을 끄고 팬을 살짝 식힌 후, 만들어둔 계란 소스를 붓고 빠르게 저어줍니다. (불이 켜져 있으면 계란이 익어 스크램블이 됩니다)</li>
+                        <li>접시에 담고 후추를 한 번 더 뿌려 완성합니다.</li>
+                    </ol>
+                </div>
+            </div>
+        </article>
+
+        <!-- 알리오 올리오 레시피 -->
+        <article id="aglio" class="recipe-card">
+            <div class="recipe-header">
+                <h3>알리오 올리오 (Aglio e Olio)</h3>
+            </div>
+            <div class="recipe-body">
+                <div class="ingredients">
+                    <h4>준비 재료</h4>
+                    <ul>
+                        <li>스파게티면 100g</li>
+                        <li>통마늘 7~8알</li>
+                        <li>페페론치노 3~4개</li>
+                        <li>엑스트라 버진 올리브 오일</li>
+                        <li>소금, 파슬리 가루</li>
+                    </ul>
+                    <div class="price-tag">Main: 22,000 KRW</div>
+                </div>
+                <div class="instructions">
+                    <h4>조리 방법</h4>
+                    <ol>
+                        <li>끓는 물에 소금을 넣고 면을 삶습니다. 면수는 나중에 사용해야 하므로 반 국자 정도 남겨둡니다.</li>
+                        <li>마늘을 너무 얇지 않게 편으로 썰고, 페페론치노는 반으로 부숴 준비합니다.</li>
+                        <li>팬에 올리브 오일을 넉넉히 두르고, 약불에서 마늘을 구워 마늘 기름을 냅니다.</li>
+                        <li>마늘이 노릇해지면 페페론치노를 넣고 볶다가, 삶은 면과 면수를 넣고 강불에서 유화(오일과 물이 섞임) 시킵니다.</li>
+                        <li>오일 소스가 뽀얗게 변하고 면에 잘 코팅되면 그릇에 담아 완성합니다.</li>
+                    </ol>
+                </div>
+            </div>
+        </article>
+
+    </section>
+
+</body>
+</html>
